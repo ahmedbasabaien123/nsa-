@@ -1,0 +1,93 @@
+ #configuration globale
+ #systemMessage définit le message système de bienvenue,
+ #allowsSignup sert à définir sur false pour désactiver l'inscription
+jenkins:
+  systemMessage: "Welcome to the Chocolatine Powered Marvin Jenkins Instance."
+  securityRealm:
+    allowsSignup: false
+
+
+#Création d'utilisateurs
+#Je spécifie les noms d'utilisateur et les variables d'environnement associées pour récupérer les mots de passe
+users:
+  - id: Hugo
+    username: Hugom
+    passwordEnvVariable: USER_CHOCOLATEEN_PASSWORD
+  - id: Garance
+    username: Garancem
+    passwordEnvVariable: USER_VAUGIE_G_PASSWORD
+  - id: Jeremy
+    username: Jeremy
+    passwordEnvVariable: USER_I_DONT_KNOW_PASSWORD
+  - id: Nassim
+    username: Nassim
+    passwordEnvVariable: USER_NASSO_PASSWORD
+
+
+#Stratégie d'autorisation (les rôles et leurs autorisations)
+authorizationStrategy:
+  roleBasedAuthorizationStrategy:
+    roles:
+      - name: admin
+        description: "Marvin master"
+        permissions:
+          - "Overall/Administer"
+        assignments:
+          - user: Hugo
+      - name: ape
+        description: "Pedagogical team member"
+        permissions:
+          - "Job/Build"
+          - "Job/Workspace"
+        assignments:
+          - user: Jeremy
+      - name: gorilla
+        description: "Group Obsessively Researching Innovation Linked to Learning and Accomplishment"
+        permissions:
+          - "Job/Build"
+          - "Job/Workspace"
+          - "Job/Configure"
+          - "Job/Create"
+          - "Job/Cancel"
+        assignments:
+          - user: Garance
+      - name: assist
+        description: "Assistant"
+        permissions:
+          - "Job/Read"
+        assignments:
+          - user: Nassim
+
+
+#Dossier et jobs
+# définition des dossiers "Tools" et deux jobs, "clone-repository" et "SEED", avec leurs paramètres et étapes respectifs
+folders:
+  - name: Tools
+    description: "Folder for miscellaneous tools."
+
+jobs:
+  - name: clone-repository
+    folder: Tools
+    type: freestyle
+    parameters:
+      - string:
+          name: GIT_REPOSITORY_URL
+          description: "Git URL of the repository to clone"
+    scm:
+      git:
+        url: "$GIT_REPOSITORY_URL"
+    steps:
+      - shell: "git clone $GIT_REPOSITORY_URL"
+
+  - name: SEED
+    folder: Tools
+    type: freestyle
+    parameters:
+      - string:
+          name: GITHUB_NAME
+          description: "GitHub repository owner/repo_name"
+      - string:
+          name: DISPLAY_NAME
+          description: "Display name for the job"
+    steps:
+      - processJobDSL: "job_dsl.groovy"
